@@ -67,13 +67,14 @@ const PostPage = () => {
 	}
 
 	if (!currentPost) return null;
+
 	console.log("currentPost", currentPost);
 
 	return (
 		<>
 			<Flex>
 				<Flex w={"full"} alignItems={"center"} gap={3}>
-					<Avatar src={user.profilePic} size={"md"} name='Mark Zuckerberg' />
+					<Avatar src={`http://localhost:5000/${user.profilePic}`} size={"md"} name='Mark Zuckerberg' />
 					<Flex>
 						<Text fontSize={"sm"} fontWeight={"bold"}>
 							{user.username}
@@ -96,7 +97,7 @@ const PostPage = () => {
 
 			{currentPost.img && (
 				<Box borderRadius={6} overflow={"hidden"} border={"1px solid"} borderColor={"gray.light"}>
-					<Image src={currentPost.img} w={"full"} />
+					<Image src={`http://localhost:5000/${currentPost.img}`} w={"full"} />
 				</Box>
 			)}
 

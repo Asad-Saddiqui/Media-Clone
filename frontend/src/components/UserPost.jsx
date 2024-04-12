@@ -75,7 +75,7 @@ const UserPost = ({ postImg, postTitle, likes, replies }) => {
 						<Text color={"gray.light"} fontSize='sm'>
 							{replies} replies
 						</Text>
-						<Box w={0.5} h={0.5} borderRadius={"full"} bg={"gray.light"}></Box>
+						<Box w={0.5} h={0.5} borderRadius={"full"} style={{backgroundColor:"yellow"}}></Box>
 						<Text color={"gray.light"} fontSize='sm'>
 							{likes} likes
 						</Text>

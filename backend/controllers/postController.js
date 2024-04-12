@@ -1,7 +1,9 @@
 import Post from "../models/postModel.js";
 import User from "../models/userModel.js";
 import { v2 as cloudinary } from "cloudinary";
-
+import fs from "fs";
+import buffer from "buffer";
+const Buffer = buffer.Buffer;
 const createPost = async (req, res) => {
 	try {
 		const { postedBy, text } = req.body;
@@ -10,8 +12,8 @@ const createPost = async (req, res) => {
 		if (!postedBy || !text) {
 			return res.status(400).json({ error: "Postedby and text fields are required" });
 		}
-
-		const user = await User.findById(postedBy);
+		console.log({ postedBy })
+		const user = await User.findById({ _id: postedBy });
 		if (!user) {
 			return res.status(404).json({ error: "User not found" });
 		}
@@ -26,8 +28,24 @@ const createPost = async (req, res) => {
 		}
 
 		if (img) {
-			const uploadedResponse = await cloudinary.uploader.upload(img);
-			img = uploadedResponse.secure_url;
+			const data = img.split(',')[1];
+			const buffer = Buffer.from(data, 'base64');
+			// Write buffer to a 
+			const folderPath = './uploads/';
+
+			// Create the uploads folder if it doesn't exist
+			if (!fs.existsSync(folderPath)) {
+				fs.mkdirSync(folderPath);
+			}
+			img = Date.now() + '.png';
+			fs.writeFile(folderPath + img, buffer, (err) => {
+				if (err) {
+					console.error(err);
+					return;
+				}
+				console.log('Image saved successfully.');
+			});
+
 		}
 
 		const newPost = new Post({ postedBy, text, img });
@@ -65,10 +83,10 @@ const deletePost = async (req, res) => {
 			return res.status(401).json({ error: "Unauthorized to delete post" });
 		}
 
-		if (post.img) {
-			const imgId = post.img.split("/").pop().split(".")[0];
-			await cloudinary.uploader.destroy(imgId);
-		}
+		// if (post.img) {
+		// 	const imgId = post.img.split("/").pop().split(".")[0];
+		// 	await cloudinary.uploader.destroy(imgId);
+		// }
 
 		await Post.findByIdAndDelete(req.params.id);
 

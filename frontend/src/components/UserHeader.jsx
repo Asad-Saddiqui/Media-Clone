@@ -46,7 +46,7 @@ const UserHeader = ({ user }) => {
 					{user.profilePic && (
 						<Avatar
 							name={user.name}
-							src={user.profilePic}
+							src={`http://localhost:5000/${user.profilePic}`}
 							size={{
 								base: "md",
 								md: "xl",

@@ -16,6 +16,7 @@ import userAtom from "../atoms/userAtom";
 import usePreviewImg from "../hooks/usePreviewImg";
 import useShowToast from "../hooks/useShowToast";
 
+
 export default function UpdateProfilePage() {
 	const [user, setUser] = useRecoilState(userAtom);
 	const [inputs, setInputs] = useState({
@@ -44,6 +45,8 @@ export default function UpdateProfilePage() {
 				},
 				body: JSON.stringify({ ...inputs, profilePic: imgUrl }),
 			});
+			console.log({ imgUrl })
+
 			const data = await res.json(); // updated user object
 			if (data.error) {
 				showToast("Error", data.error, "error");
@@ -76,7 +79,7 @@ export default function UpdateProfilePage() {
 					<FormControl id='userName'>
 						<Stack direction={["column", "row"]} spacing={6}>
 							<Center>
-								<Avatar size='xl' boxShadow={"md"} src={imgUrl || user.profilePic} />
+								<Avatar size='xl' boxShadow={"md"} src={`${imgUrl || "http://localhost:5000/" + user.profilePic}`} />
 							</Center>
 							<Center w='full'>
 								<Button w='full' onClick={() => fileRef.current.click()}>

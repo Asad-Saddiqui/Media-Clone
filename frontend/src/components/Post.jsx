@@ -65,7 +65,7 @@ const Post = ({ post, postedBy }) => {
 					<Avatar
 						size='md'
 						name={user.name}
-						src={user?.profilePic}
+						src={`http://localhost:5000/${user?.profilePic}`}
 						onClick={(e) => {
 							e.preventDefault();
 							navigate(`/${user.username}`);
@@ -78,7 +78,7 @@ const Post = ({ post, postedBy }) => {
 							<Avatar
 								size='xs'
 								name='John doe'
-								src={post.replies[0].userProfilePic}
+								src={`http://localhost:5000/${post.replies[0].userProfilePic}`}
 								position={"absolute"}
 								top={"0px"}
 								left='15px'
@@ -90,7 +90,7 @@ const Post = ({ post, postedBy }) => {
 							<Avatar
 								size='xs'
 								name='John doe'
-								src={post.replies[1].userProfilePic}
+								src={`http://localhost:5000/${post.replies[1].userProfilePic}`}
 								position={"absolute"}
 								bottom={"0px"}
 								right='-5px'
@@ -102,7 +102,7 @@ const Post = ({ post, postedBy }) => {
 							<Avatar
 								size='xs'
 								name='John doe'
-								src={post.replies[2].userProfilePic}
+								src={`http://localhost:5000/${post.replies[2].userProfilePic}`}
 								position={"absolute"}
 								bottom={"0px"}
 								left='4px'
@@ -138,7 +138,7 @@ const Post = ({ post, postedBy }) => {
 					<Text fontSize={"sm"}>{post.text}</Text>
 					{post.img && (
 						<Box borderRadius={6} overflow={"hidden"} border={"1px solid"} borderColor={"gray.light"}>
-							<Image src={post.img} w={"full"} />
+							<Image src={`http://localhost:5000/${post.img}`} w={"full"} />
 						</Box>
 					)}
 

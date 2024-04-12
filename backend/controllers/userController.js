@@ -4,6 +4,9 @@ import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
+import fs from "fs";
+import buffer from "buffer";
+const Buffer = buffer.Buffer;
 
 const getUserProfile = async (req, res) => {
 	// We will fetch user profile either with username or userId
@@ -141,12 +144,11 @@ const followUnFollowUser = async (req, res) => {
 const updateUser = async (req, res) => {
 	const { name, email, username, password, bio } = req.body;
 	let { profilePic } = req.body;
-
 	const userId = req.user._id;
 	try {
 		let user = await User.findById(userId);
 		if (!user) return res.status(400).json({ error: "User not found" });
-
+		console.log(req.params.id + "===" + userId.toString())
 		if (req.params.id !== userId.toString())
 			return res.status(400).json({ error: "You cannot update other user's profile" });
 
@@ -157,12 +159,29 @@ const updateUser = async (req, res) => {
 		}
 
 		if (profilePic) {
-			if (user.profilePic) {
-				await cloudinary.uploader.destroy(user.profilePic.split("/").pop().split(".")[0]);
-			}
+			const data = profilePic.split(',')[1];
+			const buffer = Buffer.from(data, 'base64');
+			// Write buffer to a 
+			const folderPath = './uploads/';
 
-			const uploadedResponse = await cloudinary.uploader.upload(profilePic);
-			profilePic = uploadedResponse.secure_url;
+			// Create the uploads folder if it doesn't exist
+			if (!fs.existsSync(folderPath)) {
+				fs.mkdirSync(folderPath);
+			}
+			profilePic = Date.now() + '.png';
+			fs.writeFile(folderPath + profilePic, buffer, (err) => {
+				if (err) {
+					console.error(err);
+					return;
+				}
+				console.log('Image saved successfully.');
+			});
+			// if (user.profilePic) {
+			// 	await cloudinary.uploader.destroy(user.profilePic.split("/").pop().split(".")[0]);
+			// }
+
+			// const uploadedResponse = await cloudinary.uploader.upload(profilePic);
+			// profilePic = uploadedResponse.secure_url;
 		}
 
 		user.name = name || user.name;
@@ -187,7 +206,7 @@ const updateUser = async (req, res) => {
 
 		// password should be null in response
 		user.password = null;
-
+		console.log({ user })
 		res.status(200).json(user);
 	} catch (err) {
 		res.status(500).json({ error: err.message });
