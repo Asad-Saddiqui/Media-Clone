@@ -14,31 +14,59 @@ import {
 	Text,
 	useDisclosure,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
 import postsAtom from "../atoms/postsAtom";
+import io from 'socket.io-client';
+import { useMyContext } from '../notificatioContext/NotificationContext';
 
-const Actions = ({ post }) => {
+const Actions = ({ post, socket }) => {
+	const { datalength, setDatalength, notificationData, setnotificationData } = useMyContext();
 	const user = useRecoilValue(userAtom);
 	const [liked, setLiked] = useState(post.likes.includes(user?._id));
 	const [posts, setPosts] = useRecoilState(postsAtom);
 	const [isLiking, setIsLiking] = useState(false);
 	const [isReplying, setIsReplying] = useState(false);
 	const [reply, setReply] = useState("");
-
 	const showToast = useShowToast();
 	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	useEffect(() => {
+		socket.emit("refreshData", user);
+
+		socket.on('datarefresh', (data) => {
+			setDatalength(data.length)
+			setnotificationData(data)
+			console.log({ data })
+		});
+		socket.on('receiveNotification', (data) => {
+			localStorage.setItem('notifi', JSON.stringify(data))
+			setDatalength(data.length)
+			setnotificationData(data)
+
+		});
+
+		// Cleanup function to remove the event listener when the component unmounts
+		return () => {
+			socket.off('receiveNotification');
+		};
+	}, [socket]);
+
+	console.log({ datalength })
+
 
 	const handleLikeAndUnlike = async () => {
 		if (!user) return showToast("Error", "You must be logged in to like a post", "error");
 		if (isLiking) return;
 		setIsLiking(true);
 		try {
-			const res = await fetch("/api/posts/like/" + post._id, {
+			const res = await fetch("http://localhost:5000/api/posts/like/" + post._id, {
 				method: "PUT",
+
 				headers: {
+					"authorization": localStorage.getItem('token'),
 					"Content-Type": "application/json",
 				},
 			});
@@ -46,7 +74,10 @@ const Actions = ({ post }) => {
 			if (data.error) return showToast("Error", data.error, "error");
 
 			if (!liked) {
-				// add the id of the current user to post.likes array
+				socket.emit("liked", {
+					postedID: post.postedBy, pid: post._id, uid: user, message: `${post.text}`,action:"Like your post"
+				})
+
 				const updatedPosts = posts.map((p) => {
 					if (p._id === post._id) {
 						return { ...p, likes: [...p.likes, user._id] };
@@ -56,6 +87,8 @@ const Actions = ({ post }) => {
 				setPosts(updatedPosts);
 			} else {
 				// remove the id of the current user from post.likes array
+				socket.emit("Unliked", { postedID: post.postedBy, pid: post._id, uid: user._id, message: `${user.username} ` })
+
 				const updatedPosts = posts.map((p) => {
 					if (p._id === post._id) {
 						return { ...p, likes: p.likes.filter((id) => id !== user._id) };
@@ -78,17 +111,21 @@ const Actions = ({ post }) => {
 		if (isReplying) return;
 		setIsReplying(true);
 		try {
-			const res = await fetch("/api/posts/reply/" + post._id, {
+			const res = await fetch("http://localhost:5000/api/posts/reply/" + post._id, {
 				method: "PUT",
 				headers: {
+					"authorization": localStorage.getItem('token'),
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({ text: reply }),
 			});
 			const data = await res.json();
 			if (data.error) return showToast("Error", data.error, "error");
-
+			socket.emit("liked", {
+				postedID: post.postedBy, pid: post._id, uid: user, message: `${reply}`, action: "Comment your post"
+			})
 			const updatedPosts = posts.map((p) => {
+
 				if (p._id === post._id) {
 					return { ...p, replies: [...p.replies, data] };
 				}

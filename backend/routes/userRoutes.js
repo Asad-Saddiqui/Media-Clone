@@ -1,5 +1,5 @@
-import express from "express";
-import {
+const express = require('express');
+const {
 	followUnFollowUser,
 	getUserProfile,
 	loginUser,
@@ -8,11 +8,10 @@ import {
 	updateUser,
 	getSuggestedUsers,
 	freezeAccount,
-} from "../controllers/userController.js";
-import protectRoute from "../middlewares/protectRoute.js";
+} = require("../controllers/userController.js");
+const protectRoute = require("../middlewares/protectRoute.js");
 
 const router = express.Router();
-
 router.get("/profile/:query", getUserProfile);
 router.get("/suggested", protectRoute, getSuggestedUsers);
 router.post("/signup", signupUser);
@@ -22,4 +21,4 @@ router.post("/follow/:id", protectRoute, followUnFollowUser); // Toggle state(fo
 router.put("/update/:id", protectRoute, updateUser);
 router.put("/freeze", protectRoute, freezeAccount);
 
-export default router;
+module.exports = router;

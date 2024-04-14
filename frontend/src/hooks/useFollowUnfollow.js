@@ -18,9 +18,10 @@ const useFollowUnfollow = (user) => {
 
 		setUpdating(true);
 		try {
-			const res = await fetch(`/api/users/follow/${user._id}`, {
+			const res = await fetch(`http://localhost:5000/api/users/follow/${user._id}`, {
 				method: "POST",
 				headers: {
+					"authorization": localStorage.getItem('token'),
 					"Content-Type": "application/json",
 				},
 			});

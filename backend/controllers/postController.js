@@ -1,9 +1,10 @@
-import Post from "../models/postModel.js";
-import User from "../models/userModel.js";
-import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
-import buffer from "buffer";
+const Post = require("../models/postModel.js");
+const User = require("../models/userModel.js");
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
+const buffer = require("buffer");
 const Buffer = buffer.Buffer;
+
 const createPost = async (req, res) => {
 	try {
 		const { postedBy, text } = req.body;
@@ -30,10 +31,8 @@ const createPost = async (req, res) => {
 		if (img) {
 			const data = img.split(',')[1];
 			const buffer = Buffer.from(data, 'base64');
-			// Write buffer to a 
 			const folderPath = './uploads/';
 
-			// Create the uploads folder if it doesn't exist
 			if (!fs.existsSync(folderPath)) {
 				fs.mkdirSync(folderPath);
 			}
@@ -83,11 +82,6 @@ const deletePost = async (req, res) => {
 			return res.status(401).json({ error: "Unauthorized to delete post" });
 		}
 
-		// if (post.img) {
-		// 	const imgId = post.img.split("/").pop().split(".")[0];
-		// 	await cloudinary.uploader.destroy(imgId);
-		// }
-
 		await Post.findByIdAndDelete(req.params.id);
 
 		res.status(200).json({ message: "Post deleted successfully" });
@@ -110,11 +104,9 @@ const likeUnlikePost = async (req, res) => {
 		const userLikedPost = post.likes.includes(userId);
 
 		if (userLikedPost) {
-			// Unlike post
 			await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
 			res.status(200).json({ message: "Post unliked successfully" });
 		} else {
-			// Like post
 			post.likes.push(userId);
 			await post.save();
 			res.status(200).json({ message: "Post liked successfully" });
@@ -186,4 +178,12 @@ const getUserPosts = async (req, res) => {
 	}
 };
 
-export { createPost, getPost, deletePost, likeUnlikePost, replyToPost, getFeedPosts, getUserPosts };
+module.exports = {
+	createPost,
+	getPost,
+	deletePost,
+	likeUnlikePost,
+	replyToPost,
+	getFeedPosts,
+	getUserPosts
+};

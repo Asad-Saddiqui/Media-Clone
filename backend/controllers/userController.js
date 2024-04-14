@@ -1,16 +1,17 @@
-import User from "../models/userModel.js";
-import Post from "../models/postModel.js";
-import bcrypt from "bcryptjs";
-import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
-import { v2 as cloudinary } from "cloudinary";
-import mongoose from "mongoose";
-import fs from "fs";
-import buffer from "buffer";
+const User = require("../models/userModel.js");
+const Post = require("../models/postModel.js");
+const bcrypt = require("bcryptjs");
+const generateTokenAndSetCookie = require("../utils/helpers/generateTokenAndSetCookie.js");
+const cloudinary = require("cloudinary").v2;
+const mongoose = require("mongoose");
+const fs = require("fs");
+const buffer = require("buffer");
 const Buffer = buffer.Buffer;
 
 const getUserProfile = async (req, res) => {
 	// We will fetch user profile either with username or userId
 	// query is either username or userId
+	console.log("Profile")
 	const { query } = req.params;
 
 	try {
@@ -53,7 +54,7 @@ const signupUser = async (req, res) => {
 		await newUser.save();
 
 		if (newUser) {
-			generateTokenAndSetCookie(newUser._id, res);
+			let token = generateTokenAndSetCookie(newUser._id, res);
 
 			res.status(201).json({
 				_id: newUser._id,
@@ -62,6 +63,7 @@ const signupUser = async (req, res) => {
 				username: newUser.username,
 				bio: newUser.bio,
 				profilePic: newUser.profilePic,
+				token: token
 			});
 		} else {
 			res.status(400).json({ error: "Invalid user data" });
@@ -74,6 +76,7 @@ const signupUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
 	try {
+		console.log("Working")
 		const { username, password } = req.body;
 		const user = await User.findOne({ username });
 		const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
@@ -85,7 +88,7 @@ const loginUser = async (req, res) => {
 			await user.save();
 		}
 
-		generateTokenAndSetCookie(user._id, res);
+		let token=generateTokenAndSetCookie(user._id, res);
 
 		res.status(200).json({
 			_id: user._id,
@@ -94,6 +97,7 @@ const loginUser = async (req, res) => {
 			username: user.username,
 			bio: user.bio,
 			profilePic: user.profilePic,
+			token: token
 		});
 	} catch (error) {
 		res.status(500).json({ error: error.message });
@@ -216,6 +220,7 @@ const updateUser = async (req, res) => {
 
 const getSuggestedUsers = async (req, res) => {
 	try {
+		console.log("suggested");
 		// exclude the current user from suggested users array and exclude users that current user is already following
 		const userId = req.user._id;
 
@@ -258,7 +263,7 @@ const freezeAccount = async (req, res) => {
 	}
 };
 
-export {
+module.exports = {
 	signupUser,
 	loginUser,
 	logoutUser,

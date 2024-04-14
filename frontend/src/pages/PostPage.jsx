@@ -1,6 +1,6 @@
 import { Avatar, Box, Button, Divider, Flex, Image, Spinner, Text } from "@chakra-ui/react";
 import Actions from "../components/Actions";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Comment from "../components/Comment";
 import useGetUserProfile from "../hooks/useGetUserProfile";
 import useShowToast from "../hooks/useShowToast";
@@ -10,6 +10,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { DeleteIcon } from "@chakra-ui/icons";
 import postsAtom from "../atoms/postsAtom";
+import io from 'socket.io-client';
 
 const PostPage = () => {
 	const { user, loading } = useGetUserProfile();
@@ -20,7 +21,32 @@ const PostPage = () => {
 	const navigate = useNavigate();
 
 	const currentPost = posts[0];
+	const [socket_, setsocket_] = useState(null);
 
+	useEffect(() => {
+		const socket = io('http://localhost:5000', {
+			extraHeaders: {
+				Authorization: localStorage.getItem('user-threads'),
+			},
+		});
+		setsocket_(socket)
+
+
+		socket.on('connect', () => {
+			console.log('Socket connected');
+		});
+
+
+		socket.on('receiveNotification', (data) => {
+			console.log('Received notification from server:', data);
+			// Handle the notification (e.g., display a toast, update UI)
+		});
+
+
+		return () => {
+			socket.disconnect(); // Cleanup on component unmount
+		};
+	}, []);
 	useEffect(() => {
 		const getPost = async () => {
 			setPosts([]);
@@ -102,7 +128,7 @@ const PostPage = () => {
 			)}
 
 			<Flex gap={3} my={3}>
-				<Actions post={currentPost} />
+				<Actions post={currentPost} socket={socket_} />
 			</Flex>
 
 			<Divider my={4} />

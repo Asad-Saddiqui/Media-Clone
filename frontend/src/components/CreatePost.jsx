@@ -57,9 +57,10 @@ const CreatePost = () => {
 	const handleCreatePost = async () => {
 		setLoading(true);
 		try {
-			const res = await fetch("/api/posts/create", {
+			const res = await fetch("http://localhost:5000/api/posts/create", {
 				method: "POST",
 				headers: {
+					"authorization": localStorage.getItem('token'),
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({ postedBy: user._id, text: postText, img: imgUrl }),

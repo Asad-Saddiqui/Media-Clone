@@ -34,7 +34,7 @@ export default function LoginCard() {
 	const handleLogin = async () => {
 		setLoading(true);
 		try {
-			const res = await fetch("/api/users/login", {
+			const res = await fetch("http://localhost:5000/api/users/login", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -47,6 +47,7 @@ export default function LoginCard() {
 				return;
 			}
 			localStorage.setItem("user-threads", JSON.stringify(data));
+			localStorage.setItem("token", data.token);
 			setUser(data);
 		} catch (error) {
 			showToast("Error", error, "error");

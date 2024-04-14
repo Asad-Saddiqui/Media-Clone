@@ -11,7 +11,11 @@ import UpdateProfilePage from "./pages/UpdateProfilePage";
 import CreatePost from "./components/CreatePost";
 import ChatPage from "./pages/ChatPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import io from 'socket.io-client';
+import Notification from "./pages/Notification";
+
 function App() {
+	
 	const user = useRecoilValue(userAtom);
 	const { pathname } = useLocation();
 	return (
@@ -22,6 +26,7 @@ function App() {
 					<Route path='/' element={user ? <HomePage /> : <Navigate to='/auth' />} />
 					<Route path='/auth' element={!user ? <AuthPage /> : <Navigate to='/' />} />
 					<Route path='/update' element={user ? <UpdateProfilePage /> : <Navigate to='/auth' />} />
+					<Route path='/notification' element={user ? <Notification user={user} /> : <Navigate to='/auth' />} />
 
 					<Route
 						path='/:username'

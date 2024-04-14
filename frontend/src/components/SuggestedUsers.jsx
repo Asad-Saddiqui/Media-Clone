@@ -12,7 +12,12 @@ const SuggestedUsers = () => {
 		const getSuggestedUsers = async () => {
 			setLoading(true);
 			try {
-				const res = await fetch("/api/users/suggested");
+				const res = await fetch("http://localhost:5000/api/users/suggested", {
+					method: "Get",
+					headers: {
+						"authorization": localStorage.getItem('token')
+					},
+				});
 				const data = await res.json();
 				if (data.error) {
 					showToast("Error", data.error, "error");
@@ -28,7 +33,6 @@ const SuggestedUsers = () => {
 
 		getSuggestedUsers();
 	}, [showToast]);
-
 	return (
 		<>
 			<Text mb={4} fontWeight={"bold"}>

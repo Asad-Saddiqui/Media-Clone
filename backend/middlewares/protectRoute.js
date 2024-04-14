@@ -1,10 +1,10 @@
-import User from "../models/userModel.js";
-import jwt from "jsonwebtoken";
+const User = require("../models/userModel.js");
+const jwt = require("jsonwebtoken");
 
 const protectRoute = async (req, res, next) => {
 	try {
-		const token = req.cookies.jwt;
-
+		const token = req.cookies.jwt || req.headers.authorization;
+		console.log({ token });
 		if (!token) return res.status(401).json({ message: "Unauthorized" });
 
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -20,4 +20,4 @@ const protectRoute = async (req, res, next) => {
 	}
 };
 
-export default protectRoute;
+module.exports = protectRoute;

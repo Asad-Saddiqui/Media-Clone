@@ -1,5 +1,5 @@
-import express from "express";
-import {
+const express = require("express");
+const {
 	createPost,
 	deletePost,
 	getPost,
@@ -7,8 +7,8 @@ import {
 	replyToPost,
 	getFeedPosts,
 	getUserPosts,
-} from "../controllers/postController.js";
-import protectRoute from "../middlewares/protectRoute.js";
+} = require("../controllers/postController.js");
+const protectRoute = require("../middlewares/protectRoute.js");
 
 const router = express.Router();
 
@@ -20,4 +20,4 @@ router.delete("/:id", protectRoute, deletePost);
 router.put("/like/:id", protectRoute, likeUnlikePost);
 router.put("/reply/:id", protectRoute, replyToPost);
 
-export default router;
+module.exports = router;
